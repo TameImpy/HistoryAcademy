@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "HistoryExtra Academy",
+    "slug": "history-academy",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "history-academy",
+    "platforms": ["ios", "android"],
+    "ios": {
+      "bundleIdentifier": "com.immediate.historyacademy"
+    },
+    "android": {
+      "package": "com.immediate.historyacademy"
+    }
+  }
+}

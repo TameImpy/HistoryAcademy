@@ -7,11 +7,13 @@ A structured, AI-augmented learning platform built on HistoryExtra's podcast arc
 ## Architecture
 
 **Monorepo structure:**
+
 - `/apps/mobile` — Expo / React Native app (iOS + Android)
 - `/apps/api` — Node/TypeScript API (Express or Fastify)
 - `/packages/shared` — Shared types, validation schemas, constants
 
 **Tech stack:**
+
 - **Mobile:** React Native / Expo
 - **Backend:** Node/TypeScript, hosted on Railway
 - **Database:** PostgreSQL + pgvector (single instance on Railway)

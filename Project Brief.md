@@ -47,7 +47,7 @@ There is no product that combines HE-level subject authority with a structured, 
 
 **Primary persona — "Richard, 61":** Retired, HistoryExtra podcast listener for years, National Trust member, reads popular history books. Has paid for Great Courses DVDs in the past. Willing to pay meaningfully for learning that feels rigorous but not intimidating.
 
-**Secondary persona — "Priya, 38":** Listens to HE and *The Rest is History* on her commute, follows historians on social media, sometimes enrols in FutureLearn courses but rarely finishes them. Wants structure without bureaucracy.
+**Secondary persona — "Priya, 38":** Listens to HE and _The Rest is History_ on her commute, follows historians on social media, sometimes enrols in FutureLearn courses but rarely finishes them. Wants structure without bureaucracy.
 
 **Tertiary — gift buyer.** History enthusiasts' partners and children buying gifts. This is a genuine conversion surface at Christmas / Father's Day. (Gift flow deferred to post-MVP, pre-gifting-season.)
 
@@ -58,6 +58,7 @@ There is no product that combines HE-level subject authority with a structured, 
 Ship in this order. Courses are the critical path.
 
 ### 4.1 Course platform (core)
+
 - Course catalogue with 6 courses at launch (dummy content for development — 6 flagship British history topics spanning different eras), ~30–40 by end of year one
 - Each course: 8–12 lessons, mix of video + audio (podcast-derived) + text
 - Progress tracking per user
@@ -65,11 +66,13 @@ Ship in this order. Courses are the critical path.
 - Certificate of completion (simple downloadable PDF with user's name, course title, instructor, date, HE branding)
 
 ### 4.2 Reading lists (affiliate revenue layer)
+
 - Each course has an expert-curated reading list
 - Book links through Bookshop.org / Amazon affiliate tags
 - Click-tracking for attribution
 
 ### 4.3 AI tutor (subscription gated)
+
 - Chat interface scoped to the course the user is currently in
 - Answers grounded **exclusively** in HE corpus via retrieval (podcast transcripts, magazine articles, course lesson content)
 - Clear citations back to source material for every answer
@@ -78,6 +81,7 @@ Ship in this order. Courses are the critical path.
 - Corpus: build ingestion pipeline shell with pluggable connectors + extensive dummy transcripts/articles for development (real corpus access not yet available)
 
 ### 4.4 Account & subscription (foundational)
+
 - Clerk for auth (placeholder — will swap to Immediate ID SSO when API is available)
 - Stripe for subscription billing via web checkout (deep-linked from app — no in-app purchases to avoid App Store 30% cut)
 - Single tier: £5.99/mo or £49.99/yr (~30% annual discount)
@@ -104,6 +108,7 @@ Ship in this order. Courses are the critical path.
 ## 6. Core user journeys
 
 **New user discovery:**
+
 1. Arrives via HE podcast episode mention, newsletter, or magazine ad
 2. Downloads app from App Store / Google Play
 3. Browses course catalogue without login — previews course: sample lesson, reading list, instructor bio
@@ -111,6 +116,7 @@ Ship in this order. Courses are the critical path.
 5. Clerk signup → deep-links to web checkout → card captured via Stripe → enrolled
 
 **Learner weekly rhythm:**
+
 1. Push notification — "you left off at lesson 4"
 2. Open lesson on phone during commute (audio-led) or tablet in the evening (video-led)
 3. Quick module quiz on completion
@@ -118,6 +124,7 @@ Ship in this order. Courses are the critical path.
 5. Progress bar moves; streak tracked
 
 **Gift purchase (post-MVP):**
+
 1. Gifter selects course or 1-year subscription gift
 2. Recipient email + delivery date
 3. Recipient receives code on date; redeems via signup
@@ -147,6 +154,7 @@ The `CorpusDocument` table is the grounding source for the AI tutor. Design this
 **Platform:** React Native / Expo — native mobile app for iOS + Android from a single codebase.
 
 **Repo structure:** Monorepo
+
 - `/apps/mobile` — Expo / React Native app
 - `/apps/api` — Node/TypeScript API (Express or Fastify)
 - `/packages/shared` — Shared types, validation schemas, constants
@@ -166,6 +174,7 @@ The `CorpusDocument` table is the grounding source for the AI tutor. Design this
 **Analytics:** Segment (free tier — 1,000 MTUs, 2 destinations). Instrument events from the start.
 
 **AI tutor infrastructure:**
+
 - Embedding store: pgvector (same Postgres instance)
 - LLM: Anthropic Claude as primary, with provider-agnostic abstraction layer (must not hardcode a single provider)
 - Retrieval: hybrid (BM25 + dense vectors) — pure vector search underperforms on proper-noun-heavy historical content
@@ -244,18 +253,21 @@ Soft requirements:
 ## 13. Ticket structure (epic → ticket)
 
 **Epic 1: Platform foundation**
+
 - Expo / React Native app skeleton
 - Monorepo setup (apps/mobile, apps/api, packages/shared)
 - Clerk auth integration
 - CI/CD, staging, analytics wiring (Segment)
 
 **Epic 2: Content platform**
+
 - Contentful schema for Course / Module / Lesson / Quiz / ReadingList
 - Content API (Node/TypeScript on Railway)
 - Dummy course content (6 flagship British history courses)
 - Editorial workflow UAT
 
 **Epic 3: Learning experience**
+
 - Course catalogue + browse + detail screens
 - Lesson player (Mux video/audio + text)
 - Quiz UX
@@ -263,12 +275,14 @@ Soft requirements:
 - Certificate PDF generation
 
 **Epic 4: Commerce**
+
 - Stripe subscriptions (web checkout, deep-linked from app)
 - Trial flow (paywall on lesson 2, 7-day trial, card capture)
 - Payment webhooks → entitlement sync
 - Subscription management
 
 **Epic 5: AI tutor**
+
 - Corpus ingestion pipeline shell (pluggable connectors)
 - Extensive dummy corpus (synthetic transcripts + articles)
 - Embedding + hybrid retrieval (BM25 + dense via pgvector)
@@ -280,11 +294,13 @@ Soft requirements:
 - Tutor conversation logging + audit
 
 **Epic 6: Reading lists + affiliate**
+
 - Contentful model for reading list items
 - Affiliate link click tracking
 - Attribution reporting
 
 **Epic 7: Pre-launch hardening**
+
 - Performance audit
 - Accessibility audit (especially important for older primary audience)
 - Security review (especially tutor + Stripe)

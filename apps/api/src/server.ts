@@ -1,6 +1,11 @@
 import { buildApp } from "./app.js";
+import { ClerkAuthProvider } from "./auth/clerk-provider.js";
 
-const app = buildApp();
+const isProduction = process.env.NODE_ENV === "production";
+
+const app = buildApp({
+  authProvider: isProduction ? new ClerkAuthProvider() : undefined,
+});
 
 const start = async () => {
   const port = Number(process.env.PORT) || 3000;

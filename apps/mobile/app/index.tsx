@@ -1,34 +1,57 @@
-import { Text, View, StyleSheet, Pressable } from "react-native";
-import { useAuth } from "@clerk/clerk-expo";
-import { useRouter } from "expo-router";
-import { APP_NAME } from "@history-academy/shared";
+import { useCallback, useEffect, useState } from "react";
+import { FlatList, StyleSheet, RefreshControl, View, Text } from "react-native";
+import type { CourseListItem } from "@history-academy/shared";
+import { api } from "../lib/api";
+import { CourseCard } from "../components/CourseCard";
+import { LoadingSkeleton } from "../components/LoadingSkeleton";
+import { ErrorState } from "../components/ErrorState";
 
-export default function HomeScreen() {
-  const { isSignedIn, signOut } = useAuth();
-  const router = useRouter();
+export default function CatalogueScreen() {
+  const [courses, setCourses] = useState<CourseListItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchCourses = useCallback(async () => {
+    try {
+      setError(null);
+      const data = await api.listCourses();
+      setCourses(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load courses");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchCourses();
+  }, [fetchCourses]);
+
+  if (loading) return <LoadingSkeleton />;
+  if (error) return <ErrorState message={error} onRetry={fetchCourses} />;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{APP_NAME}</Text>
-      <Text style={styles.subtitle}>Learn history from the experts</Text>
-
-      {isSignedIn ? (
-        <Pressable style={styles.button} onPress={() => signOut()}>
-          <Text style={styles.buttonText}>Sign Out</Text>
-        </Pressable>
-      ) : (
-        <View style={styles.authButtons}>
-          <Pressable style={styles.button} onPress={() => router.push("/(auth)/sign-in")}>
-            <Text style={styles.buttonText}>Sign In</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.button, styles.secondaryButton]}
-            onPress={() => router.push("/(auth)/sign-up")}
-          >
-            <Text style={styles.secondaryButtonText}>Sign Up</Text>
-          </Pressable>
-        </View>
-      )}
+      <FlatList
+        data={courses}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <CourseCard course={item} />}
+        contentContainerStyle={styles.list}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Courses</Text>
+            <Text style={styles.headerSubtitle}>Learn history from the experts</Text>
+          </View>
+        }
+      />
     </View>
   );
 }
@@ -36,46 +59,21 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    padding: 24,
+    backgroundColor: "#f5f5f5",
   },
-  title: {
-    fontSize: 28,
+  list: {
+    padding: 16,
+  },
+  header: {
+    marginBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 32,
     fontWeight: "bold",
-    marginBottom: 8,
   },
-  subtitle: {
+  headerSubtitle: {
     fontSize: 16,
     color: "#666",
-    marginBottom: 32,
-  },
-  authButtons: {
-    gap: 12,
-    width: "100%",
-    maxWidth: 300,
-  },
-  button: {
-    backgroundColor: "#1a1a2e",
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  secondaryButton: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#1a1a2e",
-  },
-  secondaryButtonText: {
-    color: "#1a1a2e",
-    fontSize: 16,
-    fontWeight: "600",
+    marginTop: 4,
   },
 });

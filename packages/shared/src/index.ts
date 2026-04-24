@@ -10,3 +10,13 @@ export type AuthUser = {
   clerkId: string;
   createdAt: Date;
 };
+
+export type {
+  Course,
+  Module,
+  Lesson,
+  Quiz,
+  QuizQuestion,
+  ReadingListItem,
+  CourseListItem,
+} from "./content.js";

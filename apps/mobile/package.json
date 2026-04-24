@@ -13,7 +13,9 @@
   "dependencies": {
     "@clerk/clerk-expo": "^2.19.31",
     "@history-academy/shared": "workspace:*",
+    "@mux/mux-player": "^3.12.0",
     "expo": "~52.0.0",
+    "expo-av": "^16.0.8",
     "expo-constants": "^55.0.15",
     "expo-router": "~4.0.0",
     "expo-secure-store": "^55.0.13",

@@ -11,6 +11,9 @@ export type AuthUser = {
   createdAt: Date;
 };
 
+export type { SubscriptionStatus, SubscriptionInfo } from "./subscription.js";
+export { PRICING } from "./subscription.js";
+
 export type {
   Course,
   Module,

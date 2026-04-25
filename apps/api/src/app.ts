@@ -5,16 +5,21 @@ import { TestAuthProvider } from "./auth/test-provider.js";
 import type { ContentProvider } from "./content/provider.js";
 import { TestContentProvider } from "./content/test-provider.js";
 import { registerContentRoutes } from "./content/routes.js";
+import type { SubscriptionProvider } from "./subscription/provider.js";
+import { TestSubscriptionProvider } from "./subscription/test-provider.js";
+import { registerSubscriptionRoutes } from "./subscription/routes.js";
 
 export interface AppOptions {
   authProvider?: AuthProvider;
   contentProvider?: ContentProvider;
+  subscriptionProvider?: SubscriptionProvider;
 }
 
 export function buildApp(options: AppOptions = {}) {
   const app = Fastify();
   const authProvider = options.authProvider ?? new TestAuthProvider();
   const contentProvider = options.contentProvider ?? new TestContentProvider();
+  const subscriptionProvider = options.subscriptionProvider ?? new TestSubscriptionProvider();
   const authenticate = buildAuthMiddleware(authProvider);
 
   app.get("/health", async () => {
@@ -29,6 +34,7 @@ export function buildApp(options: AppOptions = {}) {
   });
 
   registerContentRoutes(app, contentProvider);
+  registerSubscriptionRoutes(app, authProvider, contentProvider, subscriptionProvider);
 
   return app;
 }

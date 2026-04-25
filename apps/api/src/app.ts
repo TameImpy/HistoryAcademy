@@ -5,6 +5,7 @@ import { TestAuthProvider } from "./auth/test-provider.js";
 import type { ContentProvider } from "./content/provider.js";
 import { TestContentProvider } from "./content/test-provider.js";
 import { registerContentRoutes } from "./content/routes.js";
+import { registerQuizRoutes } from "./content/quiz-routes.js";
 import type { SubscriptionProvider } from "./subscription/provider.js";
 import { TestSubscriptionProvider } from "./subscription/test-provider.js";
 import { registerSubscriptionRoutes } from "./subscription/routes.js";
@@ -39,6 +40,7 @@ export function buildApp(options: AppOptions = {}) {
   });
 
   registerContentRoutes(app, contentProvider);
+  registerQuizRoutes(app, contentProvider, authProvider);
   registerSubscriptionRoutes(app, authProvider, contentProvider, subscriptionProvider);
   registerProgressRoutes(app, authProvider, progressProvider);
 

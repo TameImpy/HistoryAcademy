@@ -112,6 +112,17 @@
 
 ---
 
+## Auth Bypass for Local Development
+
+### Clerk bypass when no key configured → must be removed before launch
+
+**MVP choice:** Mobile app skips the Clerk auth wrapper when no `clerkPublishableKey` is configured, allowing local browsing without Clerk credentials.
+**Why it works for now:** Unblocks local development and demo without needing Clerk account setup.
+**When to revisit:** Before any user-facing deployment. This MUST be addressed before launch — without auth, the paywall, subscription, progress, and tutor features are non-functional.
+**Production direction:** Configure Clerk publishable key in Expo config, remove the bypass, and test the full auth flow end-to-end.
+
+---
+
 ## Features Deferred Entirely
 
 These aren't MVP compromises — they're whole features we deliberately skipped. Listing them here as a roadmap reference:

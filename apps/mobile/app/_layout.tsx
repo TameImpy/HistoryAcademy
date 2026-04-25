@@ -6,6 +6,10 @@ import { tokenCache } from "../lib/auth-token-cache";
 const clerkPublishableKey = (Constants.expoConfig?.extra?.clerkPublishableKey as string) ?? "";
 
 export default function RootLayout() {
+  if (!clerkPublishableKey) {
+    return <Stack />;
+  }
+
   return (
     <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={tokenCache}>
       <ClerkLoaded>

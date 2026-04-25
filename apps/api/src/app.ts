@@ -8,11 +8,15 @@ import { registerContentRoutes } from "./content/routes.js";
 import type { SubscriptionProvider } from "./subscription/provider.js";
 import { TestSubscriptionProvider } from "./subscription/test-provider.js";
 import { registerSubscriptionRoutes } from "./subscription/routes.js";
+import type { ProgressProvider } from "./progress/provider.js";
+import { TestProgressProvider } from "./progress/test-provider.js";
+import { registerProgressRoutes } from "./progress/routes.js";
 
 export interface AppOptions {
   authProvider?: AuthProvider;
   contentProvider?: ContentProvider;
   subscriptionProvider?: SubscriptionProvider;
+  progressProvider?: ProgressProvider;
 }
 
 export function buildApp(options: AppOptions = {}) {
@@ -20,6 +24,7 @@ export function buildApp(options: AppOptions = {}) {
   const authProvider = options.authProvider ?? new TestAuthProvider();
   const contentProvider = options.contentProvider ?? new TestContentProvider();
   const subscriptionProvider = options.subscriptionProvider ?? new TestSubscriptionProvider();
+  const progressProvider = options.progressProvider ?? new TestProgressProvider();
   const authenticate = buildAuthMiddleware(authProvider);
 
   app.get("/health", async () => {
@@ -35,6 +40,7 @@ export function buildApp(options: AppOptions = {}) {
 
   registerContentRoutes(app, contentProvider);
   registerSubscriptionRoutes(app, authProvider, contentProvider, subscriptionProvider);
+  registerProgressRoutes(app, authProvider, progressProvider);
 
   return app;
 }

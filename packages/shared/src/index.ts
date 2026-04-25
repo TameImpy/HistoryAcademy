@@ -12,6 +12,7 @@ export type AuthUser = {
 };
 
 export type { SubscriptionStatus, SubscriptionInfo } from "./subscription.js";
+export type { LessonProgress, CourseProgress, StreakInfo } from "./progress.js";
 export { PRICING } from "./subscription.js";
 
 export type {

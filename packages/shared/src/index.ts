@@ -13,6 +13,13 @@ export type AuthUser = {
 
 export type { SubscriptionStatus, SubscriptionInfo } from "./subscription.js";
 export type { LessonProgress, CourseProgress, StreakInfo } from "./progress.js";
+export type {
+  CorpusDocument,
+  Citation,
+  TutorMessage,
+  TutorSession,
+  TutorFeedback,
+} from "./ai-tutor.js";
 export { PRICING } from "./subscription.js";
 
 export type {

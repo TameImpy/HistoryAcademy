@@ -16,6 +16,11 @@ import { registerProgressRoutes } from "./progress/routes.js";
 import type { CertificateProvider } from "./certificate/provider.js";
 import { TestCertificateProvider } from "./certificate/test-provider.js";
 import { registerCertificateRoutes } from "./certificate/routes.js";
+import type { LLMProvider } from "./ai-tutor/llm-provider.js";
+import { TestLLMProvider } from "./ai-tutor/test-llm-provider.js";
+import type { RetrievalProvider } from "./ai-tutor/retrieval-provider.js";
+import { TestRetrievalProvider } from "./ai-tutor/test-retrieval-provider.js";
+import { registerAITutorRoutes } from "./ai-tutor/routes.js";
 
 export interface AppOptions {
   authProvider?: AuthProvider;
@@ -23,6 +28,8 @@ export interface AppOptions {
   subscriptionProvider?: SubscriptionProvider;
   progressProvider?: ProgressProvider;
   certificateProvider?: CertificateProvider;
+  llmProvider?: LLMProvider;
+  retrievalProvider?: RetrievalProvider;
 }
 
 export function buildApp(options: AppOptions = {}) {
@@ -32,6 +39,8 @@ export function buildApp(options: AppOptions = {}) {
   const subscriptionProvider = options.subscriptionProvider ?? new TestSubscriptionProvider();
   const progressProvider = options.progressProvider ?? new TestProgressProvider();
   const certificateProvider = options.certificateProvider ?? new TestCertificateProvider();
+  const llmProvider = options.llmProvider ?? new TestLLMProvider();
+  const retrievalProvider = options.retrievalProvider ?? new TestRetrievalProvider();
   const authenticate = buildAuthMiddleware(authProvider);
 
   app.get("/health", async () => {
@@ -51,6 +60,7 @@ export function buildApp(options: AppOptions = {}) {
   registerProgressRoutes(app, authProvider, progressProvider);
   registerCertificateRoutes(app, authProvider, contentProvider, certificateProvider);
   registerReadingListRoutes(app, authProvider);
+  registerAITutorRoutes(app, authProvider, llmProvider, retrievalProvider);
 
   return app;
 }

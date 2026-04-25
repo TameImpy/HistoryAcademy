@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import type { AuthProvider } from "../auth/provider.js";
+import { buildAuthMiddleware } from "../auth/middleware.js";
 import type { ContentProvider } from "../content/provider.js";
 import type { SubscriptionProvider } from "./provider.js";
 
@@ -9,6 +10,29 @@ export function registerSubscriptionRoutes(
   contentProvider: ContentProvider,
   subscriptionProvider: SubscriptionProvider,
 ) {
+  const authenticate = buildAuthMiddleware(authProvider);
+
+  // Get current subscription status
+  app.get("/subscription", { preHandler: authenticate }, async (request) => {
+    return subscriptionProvider.getSubscription(request.user!.userId);
+  });
+
+  // Cancel subscription
+  app.post("/subscription/cancel", { preHandler: authenticate }, async (request) => {
+    return subscriptionProvider.cancelSubscription(request.user!.userId);
+  });
+
+  // Create checkout session
+  app.post<{ Body: { plan: "monthly" | "annual" } }>(
+    "/subscription/checkout",
+    { preHandler: authenticate },
+    async (request) => {
+      const { plan } = request.body;
+      const checkoutUrl = await subscriptionProvider.createCheckoutUrl(request.user!.userId, plan);
+      return { checkoutUrl };
+    },
+  );
+
   app.get<{ Params: { slug: string; lessonId: string } }>(
     "/courses/:slug/lessons/:lessonId/access",
     async (request: FastifyRequest<{ Params: { slug: string; lessonId: string } }>, reply) => {

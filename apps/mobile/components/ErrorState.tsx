@@ -1,12 +1,13 @@
 import { Text, View, StyleSheet, Pressable } from "react-native";
+import { tone, fonts } from "../lib/theme";
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Something went wrong</Text>
+      <Text style={styles.title}>Off the map</Text>
       <Text style={styles.message}>{message}</Text>
       <Pressable style={styles.button} onPress={onRetry}>
-        <Text style={styles.buttonText}>Retry</Text>
+        <Text style={styles.buttonText}>RETRY</Text>
       </Pressable>
     </View>
   );
@@ -18,27 +19,32 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 24,
+    backgroundColor: tone.bg,
   },
   title: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontFamily: fonts.display,
+    fontSize: 28,
+    fontWeight: "500",
+    color: tone.ink,
     marginBottom: 8,
   },
   message: {
+    fontFamily: fonts.serif,
     fontSize: 14,
-    color: "#666",
+    fontStyle: "italic",
+    color: tone.ink2,
     textAlign: "center",
     marginBottom: 24,
   },
   button: {
-    backgroundColor: "#1a1a2e",
-    paddingVertical: 12,
+    backgroundColor: tone.ink,
+    paddingVertical: 14,
     paddingHorizontal: 24,
-    borderRadius: 8,
   },
   buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    letterSpacing: 2,
+    color: tone.bg,
   },
 });

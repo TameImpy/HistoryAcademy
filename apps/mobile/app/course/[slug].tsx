@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
-import { Text, View, StyleSheet, ScrollView, Image, Pressable, RefreshControl } from "react-native";
+import { Text, View, StyleSheet, ScrollView, Pressable, RefreshControl } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { useAuth } from "@clerk/clerk-expo";
 import type { Course } from "@history-academy/shared";
 import { api } from "../../lib/api";
 import { LoadingSkeleton } from "../../components/LoadingSkeleton";
 import { ErrorState } from "../../components/ErrorState";
+import { tone, fonts } from "../../lib/theme";
 
 export default function CourseDetailScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
-  const { isSignedIn } = useAuth();
+  const isSignedIn = false; // TODO: restore useAuth() when Clerk is configured
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -52,26 +52,40 @@ export default function CourseDetailScreen() {
         />
       }
     >
-      <Image source={{ uri: course.heroImageUrl }} style={styles.hero} />
+      {/* Hero */}
+      <View style={styles.hero}>
+        <Text style={styles.heroLabel}>EXPEDITION · {course.level.toUpperCase()}</Text>
+        <Text style={styles.heroTitle}>{course.title}</Text>
+        <Text style={styles.heroInstructor}>
+          Charted by <Text style={styles.bold}>{course.instructor}</Text>
+        </Text>
+      </View>
 
       <View style={styles.content}>
-        <Text style={styles.title}>{course.title}</Text>
-        <Text style={styles.instructor}>{course.instructor}</Text>
-        <View style={styles.metaRow}>
-          <Text style={styles.metaTag}>{course.level}</Text>
-          <Text style={styles.metaTag}>{course.durationHours} hours</Text>
-          <Text style={styles.metaTag}>
-            {course.modules.reduce((sum, m) => sum + m.lessons.length, 0)} lessons
-          </Text>
+        {/* Stats */}
+        <View style={styles.statsRow}>
+          {[
+            [String(course.modules.reduce((s, m) => s + m.lessons.length, 0)), "Lessons"],
+            [`${course.durationHours}h`, "Duration"],
+            [course.level, "Level"],
+          ].map(([value, label], i) => (
+            <View key={i} style={styles.stat}>
+              <Text style={styles.statValue}>{value}</Text>
+              <Text style={styles.statLabel}>{label.toUpperCase()}</Text>
+            </View>
+          ))}
         </View>
 
         <Text style={styles.summary}>{course.summary}</Text>
 
+        {/* Modules */}
         {course.modules.map((mod) => (
           <View key={mod.id} style={styles.moduleSection}>
-            <Text style={styles.moduleTitle}>
-              Module {mod.order}: {mod.title}
-            </Text>
+            <View style={styles.moduleLabelRow}>
+              <View style={styles.redLine} />
+              <Text style={styles.moduleLabel}>MODULE {mod.order}</Text>
+            </View>
+            <Text style={styles.moduleTitle}>{mod.title}</Text>
             <Text style={styles.moduleSummary}>{mod.summary}</Text>
 
             {mod.lessons.map((lesson) => {
@@ -81,14 +95,16 @@ export default function CourseDetailScreen() {
               return (
                 <Pressable key={lesson.id} style={styles.lessonRow}>
                   <View style={styles.lessonLeft}>
-                    <Text style={styles.lessonIcon}>
-                      {lesson.contentType === "video"
-                        ? "V"
-                        : lesson.contentType === "audio"
-                          ? "A"
-                          : "T"}
-                    </Text>
-                    <View>
+                    <View style={styles.lessonTypeIcon}>
+                      <Text style={styles.lessonTypeText}>
+                        {lesson.contentType === "video"
+                          ? "V"
+                          : lesson.contentType === "audio"
+                            ? "A"
+                            : "T"}
+                      </Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
                       <Text style={[styles.lessonTitle, isLocked && styles.lockedText]}>
                         {lesson.title}
                       </Text>
@@ -98,7 +114,7 @@ export default function CourseDetailScreen() {
                   {currentIndex === 0 ? (
                     <Text style={styles.freeTag}>FREE</Text>
                   ) : isLocked ? (
-                    <Text style={styles.lockIcon}>L</Text>
+                    <Text style={styles.lockText}>LOCKED</Text>
                   ) : null}
                 </Pressable>
               );
@@ -106,7 +122,7 @@ export default function CourseDetailScreen() {
 
             {mod.quiz && (
               <View style={styles.quizRow}>
-                <Text style={styles.quizLabel}>Quiz · {mod.quiz.questions.length} questions</Text>
+                <Text style={styles.quizLabel}>◆ Quiz · {mod.quiz.questions.length} questions</Text>
               </View>
             )}
           </View>
@@ -117,59 +133,90 @@ export default function CourseDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
+  container: { flex: 1, backgroundColor: tone.bg },
   hero: {
-    width: "100%",
-    height: 220,
-    backgroundColor: "#e0e0e0",
+    padding: 24,
+    paddingTop: 16,
+    borderBottomWidth: 1.5,
+    borderBottomColor: tone.ink,
+    backgroundColor: tone.paper,
   },
-  content: {
-    padding: 20,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  instructor: {
-    fontSize: 16,
-    color: "#666",
+  heroLabel: {
+    fontFamily: fonts.mono,
+    fontSize: 9,
+    letterSpacing: 2,
+    color: tone.red,
     marginBottom: 12,
   },
-  metaRow: {
-    flexDirection: "row",
-    gap: 8,
-    marginBottom: 16,
+  heroTitle: {
+    fontFamily: fonts.display,
+    fontSize: 36,
+    fontWeight: "500",
+    color: tone.ink,
+    lineHeight: 40,
+    letterSpacing: -0.5,
   },
-  metaTag: {
-    backgroundColor: "#f0f0f0",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    fontSize: 12,
-    color: "#555",
-    textTransform: "capitalize",
+  heroInstructor: {
+    fontFamily: fonts.serif,
+    fontSize: 14,
+    fontStyle: "italic",
+    color: tone.ink2,
+    marginTop: 12,
+  },
+  bold: { fontWeight: "600", fontStyle: "normal", color: tone.ink },
+  content: { padding: 24 },
+  statsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderStyle: "dashed",
+    borderColor: tone.rule,
+    marginBottom: 24,
+  },
+  stat: { alignItems: "center" },
+  statValue: {
+    fontFamily: fonts.display,
+    fontSize: 22,
+    fontWeight: "600",
+    color: tone.ink,
+  },
+  statLabel: {
+    fontFamily: fonts.mono,
+    fontSize: 8,
+    letterSpacing: 1.5,
+    color: tone.ink2,
+    marginTop: 4,
   },
   summary: {
+    fontFamily: fonts.serif,
     fontSize: 15,
-    lineHeight: 22,
-    color: "#333",
-    marginBottom: 24,
+    lineHeight: 24,
+    color: tone.ink2,
+    marginBottom: 28,
   },
-  moduleSection: {
-    marginBottom: 24,
+  moduleSection: { marginBottom: 28 },
+  moduleLabelRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 8 },
+  redLine: { width: 20, height: 1, backgroundColor: tone.red },
+  moduleLabel: {
+    fontFamily: fonts.mono,
+    fontSize: 9,
+    letterSpacing: 2,
+    color: tone.red,
   },
   moduleTitle: {
-    fontSize: 18,
+    fontFamily: fonts.display,
+    fontSize: 22,
     fontWeight: "600",
+    color: tone.ink,
     marginBottom: 4,
   },
   moduleSummary: {
-    fontSize: 14,
-    color: "#666",
+    fontFamily: fonts.serif,
+    fontSize: 13,
+    fontStyle: "italic",
+    color: tone.ink2,
     marginBottom: 12,
   },
   lessonRow: {
@@ -178,57 +225,56 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    borderBottomColor: tone.rule,
   },
-  lessonLeft: {
-    flexDirection: "row",
+  lessonLeft: { flexDirection: "row", alignItems: "center", gap: 12, flex: 1 },
+  lessonTypeIcon: {
+    width: 30,
+    height: 30,
+    borderWidth: 1,
+    borderColor: tone.ink,
     alignItems: "center",
-    gap: 12,
-    flex: 1,
+    justifyContent: "center",
   },
-  lessonIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "#e8e8e8",
-    textAlign: "center",
-    lineHeight: 32,
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#555",
+  lessonTypeText: {
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    color: tone.ink,
   },
   lessonTitle: {
-    fontSize: 15,
-    fontWeight: "500",
+    fontFamily: fonts.serif,
+    fontSize: 14,
+    color: tone.ink,
   },
-  lockedText: {
-    color: "#aaa",
-  },
+  lockedText: { color: tone.ink3 },
   lessonMeta: {
-    fontSize: 12,
-    color: "#888",
+    fontFamily: fonts.mono,
+    fontSize: 9,
+    color: tone.ink2,
+    letterSpacing: 1,
     marginTop: 2,
   },
   freeTag: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: "#2e7d32",
-    backgroundColor: "#e8f5e9",
+    fontFamily: fonts.mono,
+    fontSize: 9,
+    letterSpacing: 1.5,
+    color: tone.teal,
+    borderWidth: 1,
+    borderColor: tone.teal,
     paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
+    paddingVertical: 3,
   },
-  lockIcon: {
-    fontSize: 16,
-    color: "#bbb",
+  lockText: {
+    fontFamily: fonts.mono,
+    fontSize: 9,
+    letterSpacing: 1.5,
+    color: tone.ink3,
   },
-  quizRow: {
-    paddingVertical: 12,
-    paddingLeft: 44,
-  },
+  quizRow: { paddingVertical: 12, paddingLeft: 42 },
   quizLabel: {
-    fontSize: 14,
-    color: "#1a1a2e",
-    fontWeight: "500",
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    color: tone.brass,
+    letterSpacing: 0.5,
   },
 });

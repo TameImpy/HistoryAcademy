@@ -1,5 +1,6 @@
 import { Text, View, StyleSheet, Pressable, Linking } from "react-native";
 import { PRICING } from "@history-academy/shared";
+import { tone, fonts } from "../lib/theme";
 
 interface PaywallProps {
   onDismiss?: () => void;
@@ -15,33 +16,24 @@ export function Paywall({ onDismiss }: PaywallProps) {
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>Unlock Full Access</Text>
+        <Text style={styles.plateLabel}>PLATE VI · MEMBERSHIP</Text>
+        <Text style={styles.title}>
+          Your expedition{"\n"}
+          <Text style={styles.italic}>awaits.</Text>
+        </Text>
         <Text style={styles.subtitle}>
-          Get unlimited access to all courses, quizzes, AI tutor, and certificates.
+          Unlimited access to all courses, the AI tutor, quizzes, and certificates.
         </Text>
 
-        <View style={styles.features}>
-          {[
-            "All courses and lessons",
-            "AI History Tutor",
-            "Quizzes and certificates",
-            "New courses every month",
-          ].map((f) => (
-            <Text key={f} style={styles.feature}>
-              - {f}
-            </Text>
-          ))}
-        </View>
-
-        <Text style={styles.trialText}>Start your {PRICING.trialDays}-day free trial</Text>
+        <Text style={styles.trialText}>{PRICING.trialDays}-day free trial · cancel anytime</Text>
 
         <Pressable style={styles.primaryButton} onPress={() => openCheckout("annual")}>
-          <Text style={styles.primaryButtonText}>{PRICING.annual.label}</Text>
-          <Text style={styles.savingsText}>Save 30%</Text>
+          <Text style={styles.primaryButtonText}>ANNUAL · {PRICING.annual.label}</Text>
+          <Text style={styles.savingsText}>Best value</Text>
         </Pressable>
 
         <Pressable style={styles.secondaryButton} onPress={() => openCheckout("monthly")}>
-          <Text style={styles.secondaryButtonText}>{PRICING.monthly.label}</Text>
+          <Text style={styles.secondaryButtonText}>MONTHLY · {PRICING.monthly.label}</Text>
         </Pressable>
 
         {onDismiss && (
@@ -59,82 +51,91 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: "rgba(31,42,42,0.7)",
     padding: 24,
   },
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
+    backgroundColor: tone.paper,
+    borderWidth: 1.5,
+    borderColor: tone.ink,
     padding: 28,
     width: "100%",
     maxWidth: 380,
     alignItems: "center",
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  subtitle: {
-    fontSize: 15,
-    color: "#666",
-    textAlign: "center",
-    marginBottom: 20,
-    lineHeight: 22,
-  },
-  features: {
-    alignSelf: "stretch",
-    marginBottom: 20,
-  },
-  feature: {
-    fontSize: 14,
-    color: "#444",
-    marginBottom: 6,
-  },
-  trialText: {
-    fontSize: 13,
-    color: "#2e7d32",
-    fontWeight: "600",
+  plateLabel: {
+    fontFamily: fonts.mono,
+    fontSize: 9,
+    letterSpacing: 2,
+    color: tone.red,
     marginBottom: 16,
   },
+  title: {
+    fontFamily: fonts.display,
+    fontSize: 32,
+    fontWeight: "500",
+    color: tone.ink,
+    textAlign: "center",
+    lineHeight: 36,
+    marginBottom: 12,
+  },
+  italic: { fontStyle: "italic" },
+  subtitle: {
+    fontFamily: fonts.serif,
+    fontSize: 14,
+    color: tone.ink2,
+    textAlign: "center",
+    lineHeight: 22,
+    marginBottom: 20,
+  },
+  trialText: {
+    fontFamily: fonts.mono,
+    fontSize: 10,
+    letterSpacing: 1,
+    color: tone.teal,
+    marginBottom: 20,
+  },
   primaryButton: {
-    backgroundColor: "#1a1a2e",
+    backgroundColor: tone.ink,
     paddingVertical: 14,
     paddingHorizontal: 32,
-    borderRadius: 8,
-    alignItems: "center",
     width: "100%",
+    alignItems: "center",
     marginBottom: 10,
   },
   primaryButtonText: {
-    color: "#fff",
-    fontSize: 17,
-    fontWeight: "700",
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    letterSpacing: 2,
+    color: tone.bg,
   },
   savingsText: {
-    color: "#aaa",
-    fontSize: 12,
-    marginTop: 2,
+    fontFamily: fonts.mono,
+    fontSize: 9,
+    color: tone.brass,
+    letterSpacing: 1,
+    marginTop: 4,
   },
   secondaryButton: {
     paddingVertical: 12,
     paddingHorizontal: 32,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
+    borderWidth: 1.5,
+    borderColor: tone.ink,
     width: "100%",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: 16,
   },
   secondaryButtonText: {
-    color: "#1a1a2e",
-    fontSize: 15,
-    fontWeight: "600",
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    letterSpacing: 2,
+    color: tone.ink,
   },
   dismissText: {
-    color: "#999",
+    fontFamily: fonts.serif,
     fontSize: 13,
+    fontStyle: "italic",
+    color: tone.ink2,
     marginTop: 8,
   },
 });

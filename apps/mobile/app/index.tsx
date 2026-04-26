@@ -5,6 +5,7 @@ import { api } from "../lib/api";
 import { CourseCard } from "../components/CourseCard";
 import { LoadingSkeleton } from "../components/LoadingSkeleton";
 import { ErrorState } from "../components/ErrorState";
+import { tone, fonts } from "../lib/theme";
 
 export default function CatalogueScreen() {
   const [courses, setCourses] = useState<CourseListItem[]>([]);
@@ -42,13 +43,25 @@ export default function CatalogueScreen() {
       <FlatList
         data={courses}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <CourseCard course={item} />}
+        renderItem={({ item, index }) => <CourseCard course={item} index={index} />}
         contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListHeaderComponent={
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Courses</Text>
-            <Text style={styles.headerSubtitle}>Learn history from the experts</Text>
+            <View style={styles.headerTop}>
+              <View>
+                <Text style={styles.headerTitle}>History Academy</Text>
+                <Text style={styles.headerSubtitle}>AN ATLAS OF ERAS</Text>
+              </View>
+            </View>
+            <View style={styles.sectionLabel}>
+              <View style={styles.redLine} />
+              <Text style={styles.plateLabel}>PLATE I · EXPEDITIONS</Text>
+            </View>
+            <Text style={styles.sectionTitle}>
+              Six expeditions{"\n"}
+              <Text style={styles.italic}>now boarding.</Text>
+            </Text>
           </View>
         }
       />
@@ -59,21 +72,66 @@ export default function CatalogueScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: tone.bg,
   },
   list: {
-    padding: 16,
+    padding: 20,
+    paddingBottom: 40,
   },
   header: {
-    marginBottom: 16,
+    marginBottom: 24,
+    paddingTop: 8,
+  },
+  headerTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    paddingBottom: 20,
+    borderBottomWidth: 1.5,
+    borderBottomColor: tone.ink,
+    marginBottom: 24,
   },
   headerTitle: {
-    fontSize: 32,
-    fontWeight: "bold",
+    fontFamily: fonts.display,
+    fontSize: 22,
+    fontWeight: "600",
+    color: tone.ink,
+    letterSpacing: -0.3,
   },
   headerSubtitle: {
-    fontSize: 16,
-    color: "#666",
-    marginTop: 4,
+    fontFamily: fonts.mono,
+    fontSize: 9,
+    letterSpacing: 2,
+    color: tone.ink2,
+    marginTop: 2,
+  },
+  sectionLabel: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 12,
+  },
+  redLine: {
+    width: 24,
+    height: 1,
+    backgroundColor: tone.red,
+  },
+  plateLabel: {
+    fontFamily: fonts.mono,
+    fontSize: 10,
+    letterSpacing: 2,
+    color: tone.red,
+  },
+  sectionTitle: {
+    fontFamily: fonts.display,
+    fontSize: 36,
+    fontWeight: "500",
+    color: tone.ink,
+    lineHeight: 40,
+    letterSpacing: -0.5,
+    marginBottom: 8,
+  },
+  italic: {
+    fontStyle: "italic",
   },
 });

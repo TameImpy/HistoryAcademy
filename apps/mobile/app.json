@@ -11,6 +11,7 @@
     },
     "android": {
       "package": "com.immediate.historyacademy"
-    }
+    },
+    "plugins": ["expo-router", "expo-secure-store"]
   }
 }

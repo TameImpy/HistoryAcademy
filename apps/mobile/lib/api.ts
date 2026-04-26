@@ -2,7 +2,8 @@ import type { CourseListItem, Course, ReadingListItem } from "@history-academy/s
 
 import Constants from "expo-constants";
 
-const API_BASE = (Constants.expoConfig?.extra?.apiUrl as string) ?? "http://localhost:3000";
+const API_BASE =
+  (Constants.expoConfig?.extra?.apiUrl as string) ?? "https://gold-gifts-accept.loca.lt";
 
 async function fetchJSON<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`);

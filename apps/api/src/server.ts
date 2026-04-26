@@ -8,7 +8,7 @@ const app = buildApp({
 });
 
 const start = async () => {
-  const port = Number(process.env.PORT) || 3000;
+  const port = Number(process.env.PORT) || 3003;
   await app.listen({ port, host: "0.0.0.0" });
   console.log(`API listening on port ${port}`);
 };

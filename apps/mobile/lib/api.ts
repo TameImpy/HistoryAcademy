@@ -3,10 +3,12 @@ import type { CourseListItem, Course, ReadingListItem } from "@history-academy/s
 import Constants from "expo-constants";
 
 const API_BASE =
-  (Constants.expoConfig?.extra?.apiUrl as string) ?? "https://gold-gifts-accept.loca.lt";
+  (Constants.expoConfig?.extra?.apiUrl as string) ?? "http://localhost:3003";
 
 async function fetchJSON<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`);
+  const response = await fetch(`${API_BASE}${path}`, {
+    headers: { "Bypass-Tunnel-Reminder": "true" },
+  });
   if (!response.ok) {
     throw new Error(`API error: ${response.status}`);
   }

@@ -10,15 +10,16 @@ import {
   Alert,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-// import { useAuth } from "@clerk/clerk-expo";
+import { useAuth } from "@clerk/clerk-expo";
+import Constants from "expo-constants";
 import type { TutorMessage, Citation } from "@history-academy/shared";
 
-const API_BASE = "http://localhost:3000";
+const API_BASE =
+  (Constants.expoConfig?.extra?.apiUrl as string) ?? "http://localhost:3003";
 
 export default function TutorChatScreen() {
   const { courseSlug } = useLocalSearchParams<{ courseSlug: string }>();
-  // TODO: restore useAuth() when Clerk is configured
-  const getToken = async () => "test-valid-token";
+  const { getToken } = useAuth();
   const [messages, setMessages] = useState<TutorMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);

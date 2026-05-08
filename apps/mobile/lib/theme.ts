@@ -11,11 +11,11 @@ export const tone = {
   white: "#faf6eb",
 };
 
-// React Native doesn't support custom web fonts out of the box
-// These will use system serif/mono until we load custom fonts via expo-font
 export const fonts = {
-  serif: "Georgia",
-  display: "Georgia",
+  display: "Fraunces_500Medium",
+  serif: "Spectral_400Regular",
+  serifItalic: "Spectral_400Regular_Italic",
+  serifBold: "Spectral_600SemiBold",
   mono: "Courier",
-  body: "Georgia",
+  body: "Spectral_400Regular",
 };

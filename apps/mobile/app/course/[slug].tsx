@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Text, View, StyleSheet, ScrollView, Pressable, RefreshControl } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useAuth } from "@clerk/clerk-expo";
 import type { Course } from "@history-academy/shared";
 import { api } from "../../lib/api";
 import { LoadingSkeleton } from "../../components/LoadingSkeleton";
@@ -9,7 +10,8 @@ import { tone, fonts } from "../../lib/theme";
 
 export default function CourseDetailScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
-  const isSignedIn = false; // TODO: restore useAuth() when Clerk is configured
+  const { isSignedIn } = useAuth();
+  const router = useRouter();
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -93,7 +95,17 @@ export default function CourseDetailScreen() {
               const isLocked = currentIndex > 0 && !isSignedIn;
 
               return (
-                <Pressable key={lesson.id} style={styles.lessonRow}>
+                <Pressable
+                  key={lesson.id}
+                  style={styles.lessonRow}
+                  onPress={() => {
+                    if (isLocked) {
+                      router.push("/(auth)/sign-in");
+                    } else {
+                      router.push(`/lesson/${lesson.id}?courseSlug=${slug}`);
+                    }
+                  }}
+                >
                   <View style={styles.lessonLeft}>
                     <View style={styles.lessonTypeIcon}>
                       <Text style={styles.lessonTypeText}>

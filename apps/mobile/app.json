@@ -5,13 +5,24 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "scheme": "history-academy",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
     "ios": {
       "bundleIdentifier": "com.immediate.historyacademy"
     },
     "android": {
       "package": "com.immediate.historyacademy"
     },
-    "plugins": ["expo-router", "expo-secure-store"]
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font"
+    ],
+    "extra": {
+      "clerkPublishableKey": "pk_test_YnVzeS1sb2N1c3QtNTguY2xlcmsuYWNjb3VudHMuZGV2JA"
+    }
   }
 }

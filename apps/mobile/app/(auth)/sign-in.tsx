@@ -9,6 +9,8 @@ export default function SignInScreen() {
   const { signIn, setActive, isLoaded } = useSignIn();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
+  const [pendingEmailCode, setPendingEmailCode] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -25,14 +27,92 @@ export default function SignInScreen() {
 
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
-        router.replace("/");
+        setTimeout(() => router.replace("/"), 100);
+      } else if (result.status === "needs_second_factor") {
+        // Clerk requires email verification as a second step
+        await signIn.prepareSecondFactor({ strategy: "email_code" });
+        setPendingEmailCode(true);
+      } else if (result.status === "needs_first_factor") {
+        const factorResult = await signIn.attemptFirstFactor({ strategy: "password", password });
+        if (factorResult.status === "complete") {
+          await setActive({ session: factorResult.createdSessionId });
+          setTimeout(() => router.replace("/"), 100);
+        } else if (factorResult.status === "needs_second_factor") {
+          await signIn.prepareSecondFactor({ strategy: "email_code" });
+          setPendingEmailCode(true);
+        } else {
+          setError(`Unexpected status: ${factorResult.status}`);
+        }
+      } else {
+        setError(`Unexpected status: ${result.status}`);
       }
     } catch (err: any) {
-      setError(err.errors?.[0]?.longMessage ?? "Sign in failed");
+      const message = err.errors?.[0]?.longMessage ?? err.message ?? "Sign in failed";
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
+
+  const handleVerifyCode = async () => {
+    if (!isLoaded) return;
+    setError("");
+    setLoading(true);
+
+    try {
+      const result = await signIn.attemptSecondFactor({
+        strategy: "email_code",
+        code,
+      });
+
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        setTimeout(() => router.replace("/"), 100);
+      } else {
+        setError(`Verification incomplete (status: ${result.status})`);
+      }
+    } catch (err: any) {
+      const message = err.errors?.[0]?.longMessage ?? err.message ?? "Verification failed";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (pendingEmailCode) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Check Your Email</Text>
+        <Text style={styles.subtitle}>We sent a code to {email}</Text>
+
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+
+        <TextInput
+          style={styles.input}
+          placeholder="Enter verification code"
+          placeholderTextColor={tone.ink3}
+          value={code}
+          onChangeText={setCode}
+          keyboardType="number-pad"
+          autoFocus
+        />
+
+        <Pressable style={styles.button} onPress={handleVerifyCode} disabled={loading}>
+          {loading ? (
+            <ActivityIndicator color={tone.paper} />
+          ) : (
+            <Text style={styles.buttonText}>Verify</Text>
+          )}
+        </Pressable>
+
+        <Pressable onPress={() => { setPendingEmailCode(false); setCode(""); setError(""); }}>
+          <Text style={styles.linkText}>
+            <Text style={styles.linkBold}>Back to sign in</Text>
+          </Text>
+        </Pressable>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>

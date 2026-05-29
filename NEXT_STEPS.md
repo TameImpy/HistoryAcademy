@@ -1,76 +1,88 @@
 # Next Steps — History Academy MVP
 
-**Last updated: 2026-04-28**
-**Context:** Issues #2-19 are implemented with 48 passing tests. Cartographer design direction applied to mobile app. All code pushed to GitHub.
+**Last updated: 2026-05-29**
+**Context:** Expo SDK 55, Clerk auth working (sign-up, sign-in with email verification, lesson unlocking), Cartographer design with custom fonts (Fraunces/Spectral), lesson navigation functional, development build running on iOS Simulator. 48 passing API tests.
 
 ---
 
-## 1. Fix local preview (BLOCKING)
+## Completed
 
-The home WiFi router blocks device-to-device communication, making Expo Go on phone unreliable. Two options:
-
-### Option A: Install Xcode (recommended)
-- Open App Store on Mac → search "Xcode" → install (~7GB download)
-- Open Xcode once after install to accept the license agreement
-- Then in the Expo terminal, press `i` to open iOS Simulator — no phone/network needed
-- This permanently solves the preview problem
-
-### Option B: Fix the router
-- Log into the router admin panel and disable "AP isolation" / "client isolation"
-- This varies by router brand — check the manual
+- ✅ Local preview — Xcode + iOS Simulator via development build (not Expo Go)
+- ✅ Clerk authentication — sign-up, sign-in with email code verification, lesson locking/unlocking
+- ✅ Custom fonts — Fraunces (display), Spectral (body) via expo-google-fonts
+- ✅ Lesson navigation — tappable lessons, free lesson shows content, locked lessons redirect to sign-in
+- ✅ API URL — pointed at localhost:3003 for simulator
+- ✅ Expo SDK upgrade — 54 → 55 (required for @clerk/clerk-expo v2 + expo-crypto AES)
+- ✅ Auth bypass removed — Clerk is live, no more dev-mode skip
 
 ---
 
-## 2. Set up Clerk authentication
+## Tier 1 — Demoable product (next priority)
 
-- Create a Clerk account at https://clerk.com
-- Create a new application, get the publishable key
-- Add it to the Expo config
-- Restore the Clerk imports in the mobile app (currently commented out — search for `// TODO: restore`)
-- Files to update:
-  - `apps/mobile/app/_layout.tsx` — restore ClerkProvider
-  - `apps/mobile/app/course/[slug].tsx` — restore useAuth()
-  - `apps/mobile/app/tutor/[courseSlug].tsx` — restore useAuth() and getToken()
-- This is tracked in `MVP Decisions to Revisit.md` as a must-fix before launch
+These three items turn the app into something you can show stakeholders with a complete user journey.
 
----
+### 1. Deploy API to Railway
+- Set up Railway project, deploy the Fastify API
+- Get a public URL, update `app.json` under `expo.extra.apiUrl`
+- This unblocks showing the app to anyone outside your Mac
 
-## 3. API URL for production
+### 2. Connect Stripe (test mode)
+- Create Stripe account, get test API keys
+- Wire up the real Stripe subscription provider (replacing `TestSubscriptionProvider`)
+- Build the web checkout flow (deep-linked from app)
+- Completes: browse → paywall → payment → unlock flow
 
-The API URL in `apps/mobile/lib/api.ts` is currently hardcoded to a tunnel URL. Before any real deployment:
-- Set up a proper hosted API (Railway as per CLAUDE.md)
-- Update the API_BASE to use `Constants.expoConfig.extra.apiUrl`
-- Configure the URL in `app.json` under `expo.extra.apiUrl`
-
----
-
-## 4. Design refinement
-
-The Cartographer design direction (parchment/map aesthetic) has been applied to:
-- Home/catalogue screen
-- Course detail screen
-- Error states
-- Paywall component
-- Navigation layout
-
-Still using system serif fonts (Georgia) as placeholders. To match the mockup fully:
-- Load custom fonts via `expo-font`: Fraunces (display), Spectral (serif), monospace
-- The design mockup files are in `/Users/matthewrance/Downloads/direction-cartographer.jsx`
+### 3. Connect Claude API for AI tutor
+- Get Anthropic API key, wire up the real LLM provider (replacing `TestLLMProvider`)
+- Connect the retrieval provider to the dummy corpus (pgvector or in-memory for now)
+- This is the highest-value differentiator — a working AI tutor demo is the pitch
 
 ---
 
-## 5. Remaining development
+## Tier 2 — Real content (requires editorial input)
 
-All 19 GitHub issues have API implementations with test providers. To move toward production:
-- **Database:** Set up PostgreSQL on Railway, replace in-memory test providers with real DB queries
-- **Contentful:** Connect real CMS instead of seed data
-- **Stripe:** Wire up real Stripe API instead of test subscription provider
-- **Mux:** Configure real video/audio assets
-- **Claude API:** Connect real LLM provider for AI tutor instead of test responses
+### 4. Set up Contentful
+- Create Contentful space with Course → Module → Lesson content model
+- Migrate 1-2 real courses from HE editorial
+- Replace `TestContentProvider` with Contentful API queries
+
+### 5. Connect Mux for video/audio
+- Upload real podcast/video assets to Mux
+- Replace placeholder VideoPlayer/AudioPlayer components (currently stubs since expo-av was removed in SDK 55 — use `expo-video` and `expo-audio`)
+- Wire up Mux playback URLs in lesson data
+
+### 6. Build the real AI tutor corpus
+- Ingest real podcast transcripts and magazine articles
+- The ingestion pipeline shell exists — needs real connectors
+- Editorial review step before content goes live in tutor
 
 ---
 
-## 6. How to run the project
+## Tier 3 — Launch readiness
+
+### 7. PostgreSQL on Railway
+- Replace all in-memory test providers with real database queries
+- Set up pgvector for AI tutor retrieval
+- Run migrations
+
+### 8. Stripe production mode
+- Switch from test to live keys
+- Web checkout flow with real payments
+- Webhook handling for subscription lifecycle
+
+### 9. App Store submission
+- App icons, splash screen, screenshots
+- Privacy policy, terms of service
+- TestFlight beta → App Store review
+
+### 10. Push notifications
+- "You left off at lesson 4" re-engagement
+- Course completion celebrations
+- New course announcements
+
+---
+
+## How to run the project
 
 ```bash
 # Install dependencies (from project root)
@@ -83,8 +95,14 @@ pnpm dev:api
 
 # Start mobile app (terminal 2)
 cd apps/mobile
-npx expo start --clear
-# Press 'i' for iOS Simulator (requires Xcode)
+npx expo start --dev-client
+# Open HistoryExtra Academy app on simulator (NOT Expo Go)
+
+# If app is missing from simulator after erase:
+xcrun simctl install booted ~/Library/Developer/Xcode/DerivedData/HistoryExtraAcademy-*/Build/Products/Debug-iphonesimulator/HistoryExtraAcademy.app
+
+# If native code changed (new packages with native modules):
+rm -rf ios && npx expo run:ios --device "iPhone 17 Pro"
 
 # Run tests
 pnpm test
@@ -96,16 +114,18 @@ pnpm typecheck
 
 ---
 
-## 7. Key files to know
+## Key files to know
 
 | What | Where |
 |------|-------|
 | API entry point | `apps/api/src/app.ts` |
 | API routes | `apps/api/src/*/routes.ts` |
 | Mobile screens | `apps/mobile/app/` |
-| Design tokens | `apps/mobile/lib/theme.ts` |
+| Design tokens / fonts | `apps/mobile/lib/theme.ts` |
 | API client | `apps/mobile/lib/api.ts` |
+| Auth screens | `apps/mobile/app/(auth)/` |
 | Shared types | `packages/shared/src/` |
 | Seed course data | `apps/api/src/content/seed-data.ts` |
 | AI tutor gold set | `apps/api/src/ai-tutor/eval/gold-set.ts` |
 | MVP decisions doc | `MVP Decisions to Revisit.md` |
+| Clerk key | `apps/mobile/app.json` → `expo.extra.clerkPublishableKey` |
